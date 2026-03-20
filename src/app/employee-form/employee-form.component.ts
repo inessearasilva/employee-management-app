@@ -37,21 +37,40 @@ export class EmployeeFormComponent implements OnInit {
 
       if (id) {
         this.isEditing = true;
+
+        this.employeeService.getEmployeeById(Number(id)).subscribe({
+          next: (result) => this.employee = result,
+          error: (err) => this.errorMessage = `Error occurred (${err.status})`
+        })
       }
 
     });
   }
 
   onSubmit(): void {
-    this.employeeService.createEmployee(this.employee)
-      .subscribe({
-        next: () => {
-          this.router.navigate(['/'])
-        },
-        error: (err) => {
-          console.log(err);
-          this.errorMessage = `Error: ${err.status} - ${err.message}`;
-        }
-      });
+
+    if (this.isEditing) {
+      this.employeeService.editEmployee(this.employee)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/'])
+          },
+          error: (err) => {
+            console.log(err);
+            this.errorMessage = `Error occurred during update: ${err.status} - ${err.message}`;
+          }
+        });
+    } else {
+      this.employeeService.createEmployee(this.employee)
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/'])
+          },
+          error: (err) => {
+            console.log(err);
+            this.errorMessage = `Error occurred during creating: ${err.status} - ${err.message}`;
+          }
+        });
+    }
   }
 }
